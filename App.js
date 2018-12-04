@@ -16,74 +16,115 @@ import {
 	Button
 } from 'react-native'
 import users from './sample-users'
-import Greeting from './components/Greeting'
+import questions from './questions'
+import animals from './animals'
 import Login from './components/Login'
-import ScrollingContainer from './components/ScrollingContainer'
+import Question from './components/Question'
+import Result from './components/Result'
 
 type Props = {}
 export default class App extends Component<Props> {
 	state = {
-		data: Object.values(users).map(el => {
+		users: Object.values(users).map(el => {
 			return {
 				label: el.name
 			}
 		}),
-		activeUser: null,
+		activeUser: {},
 		loggedIn: false,
-		welcomeGreeting: null,
-		buttonPressed: false,
-		food: null
+		currentQuestion: 0,
+		complete: false,
+		text: ''
 	}
 
-	onPress = () => {
-		let selectedButton = this.state.data.find(e => e.selected == true)
+	onSelect = () => {
+		let selectedButton = this.state.users.find(e => e.selected == true)
 		selectedButton = selectedButton ? selectedButton.value : null
 
 		this.setState({
-			loggedIn: true,
-			activeUser: selectedButton
+			activeUser: {
+				name: selectedButton
+			}
 		})
 	}
 
-	onButtonPress = () => {
+	onPress = () => {
+		this.setState({ loggedIn: true })
+	}
+
+	onTextChange = updatedUser => {
+		const user = { ...this.state.activeUser }
+
+		if (this.state.currentQuestion == 0) {
+			user.food = updatedUser
+		} else if (this.state.currentQuestion == 1) {
+			user.color = updatedUser
+		} else {
+			user.desc = updatedUser
+		}
+
+		this.setState({ activeUser: user, text: updatedUser })
+
+		console.log(user)
+	}
+
+	onSubmit = () => {
+		const currentQuestionIndex = this.state.currentQuestion
+		if (currentQuestionIndex === questions.length - 1) {
+			this.setState({ complete: true })
+		}
 		this.setState({
-			welcomeGreeting: `You pressed the button. No ${this.state.food} for you.`,
-			buttonPressed: true
+			currentQuestion:
+				currentQuestionIndex <= questions.length ? currentQuestionIndex + 1 : 0,
+			text: ''
 		})
+	}
+
+	returnHome = () => {
+		this.setState({ loggedIn: false, complete: false, currentQuestion: 0 })
+	}
+
+	selectRandom = array => {
+		return array[Math.floor(Math.random() * array.length)]
 	}
 
 	render() {
-		let greeting
-		if (!this.state.buttonPressed) {
-			greeting = this.state.food
-				? `I love ${this.state.food}`
-				: 'You haven’t chosen your favourite food'
-		} else {
-			greeting = this.state.welcomeGreeting
-		}
-
-		if (this.state.loggedIn) {
+		if (this.state.complete) {
+			const { food, color, desc } = this.state.activeUser
+			const animal = this.selectRandom(animals)
 			return (
 				<View style={styles.container}>
-					<Greeting name={this.state.activeUser} />
-					<TextInput
-						style={{ padding: 20 }}
-						placeholder="Type your favourite food"
-						onChangeText={food => this.setState({ food, buttonPressed: false })}
+					<Result
+						food={food}
+						color={color}
+						desc={desc}
+						animal={animal}
+						onPress={this.returnHome}
 					/>
-					<Text>{greeting}</Text>
-					<View style={{ backgroundColor: 'black', marginTop: 20 }}>
-						<Button onPress={this.onButtonPress} title="Press the button" />
-					</View>
+				</View>
+			)
+		} else if (this.state.loggedIn) {
+			let question = questions[this.state.currentQuestion]
+			return (
+				<View style={styles.container}>
+					<Question
+						user={this.state.activeUser.name}
+						users={this.state.users}
+						question={question}
+						text={this.state.text}
+						onTextChange={this.onTextChange}
+						onSubmit={this.onSubmit}
+					/>
 				</View>
 			)
 		} else {
 			return (
 				<View style={styles.container}>
 					<Login
-						title="My First App"
-						data={this.state.data}
+						title="Who are you?"
+						users={this.state.users}
 						activeUser={this.state.activeUser}
+						select={this.onSelect}
 						onPress={this.onPress}
 					/>
 				</View>

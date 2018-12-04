@@ -3,7 +3,7 @@ import { Text } from 'react-native'
 
 class Greeting extends Component {
 	render() {
-		return <Text>Hello {this.props.name}! What is your favourite food?</Text>
+		return <Text>Hello {this.props.name}!</Text>
 	}
 }
 

@@ -1,19 +1,15 @@
 const users = {
 	person1: {
-		name: 'Michelle',
-		hasCat: true
+		name: 'Michelle'
 	},
 	person2: {
-		name: 'Adam',
-		hasCat: false
+		name: 'Adam'
 	},
 	person3: {
-		name: 'Tom',
-		hasCat: true
+		name: 'Tom'
 	},
 	person4: {
-		name: 'Ben',
-		hasCat: false
+		name: 'Ben'
 	}
 }
 
