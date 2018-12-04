@@ -7,14 +7,12 @@
  */
 
 import React, { Component } from 'react'
-import {
-	Platform,
-	StyleSheet,
-	TextInput,
-	Text,
-	View,
-	Button
-} from 'react-native'
+import { StyleSheet, View } from 'react-native'
+
+//Theme
+import getTheme from './native-base-theme/components'
+import material from './native-base-theme/variables/material'
+
 import users from './sample-users'
 import questions from './questions'
 import animals from './animals'
@@ -37,9 +35,17 @@ export default class App extends Component<Props> {
 		text: ''
 	}
 
+	componentDidMount = () => {
+		if (!this.state.activeUser.name) {
+			this.onSelect()
+		}
+	}
+
 	onSelect = () => {
 		let selectedButton = this.state.users.find(e => e.selected == true)
-		selectedButton = selectedButton ? selectedButton.value : null
+		selectedButton = selectedButton
+			? selectedButton.value
+			: this.state.users[0].label
 
 		this.setState({
 			activeUser: {
@@ -138,16 +144,7 @@ const styles = StyleSheet.create({
 		flex: 1,
 		justifyContent: 'center',
 		alignItems: 'center',
-		backgroundColor: '#F5FCFF'
-	},
-	welcome: {
-		fontSize: 20,
-		textAlign: 'center',
-		margin: 10
-	},
-	instructions: {
-		textAlign: 'center',
-		color: '#333333',
-		marginBottom: 5
+		backgroundColor: '#F5FCFF',
+		padding: 20
 	}
 })

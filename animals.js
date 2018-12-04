@@ -17,7 +17,8 @@ const animals = [
 	'badger',
 	'wolf',
 	'squirrel',
-	'lizard'
+	'lizard',
+	'whale'
 ]
 
 export default animals

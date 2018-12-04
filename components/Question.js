@@ -6,20 +6,18 @@ import Greeting from './Greeting'
 
 class Login extends Component {
 	render() {
-		const userIndex = this.props.users.findIndex(el => {
-			return el.label === this.props.user
-		})
+		const { user, question, text, onSubmit } = this.props
 		return (
 			<View>
-				<Greeting name={this.props.user} />
-				<Text>{this.props.question.question}</Text>
+				<Greeting name={user} />
+				<Text>{question.question}</Text>
 				<TextInput
 					style={{ padding: 20 }}
 					placeholder="Enter your answer here"
 					onChangeText={text => this.props.onTextChange(text)}
-					value={this.props.text}
+					value={text}
 				/>
-				<FancyButton title="Next" onPress={this.props.onSubmit} />
+				<FancyButton title="Next" onPress={onSubmit} />
 			</View>
 		)
 	}

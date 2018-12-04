@@ -8,7 +8,8 @@ const styles = StyleSheet.create({
 		textAlign: 'center'
 	},
 	buttonText: {
-		color: 'white'
+		color: 'white',
+		textAlign: 'center'
 	}
 })
 
