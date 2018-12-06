@@ -8,134 +8,100 @@
 
 import React, { Component } from 'react'
 import { StyleSheet, View } from 'react-native'
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
+
+// Import react router deps
+// import { Router, Route, IndexRoute, browserHistory } from 'react-router'
+import { Provider } from 'react-redux'
+import { createStore } from 'redux'
+
+import answerReducer from './reducers/answers'
+
+const store = createStore(answerReducer)
 
 //Theme
 import getTheme from './native-base-theme/components'
 import material from './native-base-theme/variables/material'
 
-import users from './sample-users'
 import questions from './questions'
-import animals from './animals'
 import Login from './components/Login'
 import Question from './components/Question'
 import Result from './components/Result'
 
-type Props = {}
-export default class App extends Component<Props> {
+export default class App extends Component {
 	state = {
-		users: Object.values(users).map(el => {
-			return {
-				label: el.name
-			}
-		}),
-		activeUser: {},
-		loggedIn: false,
-		currentQuestion: 0,
-		complete: false,
-		text: ''
+		answers: []
 	}
 
-	componentDidMount = () => {
-		if (!this.state.activeUser.name) {
-			this.onSelect()
-		}
-	}
-
-	onSelect = () => {
-		let selectedButton = this.state.users.find(e => e.selected == true)
-		selectedButton = selectedButton
-			? selectedButton.value
-			: this.state.users[0].label
-
+	onSubmit = answer => {
 		this.setState({
-			activeUser: {
-				name: selectedButton
-			}
+			answers: [...this.state.answers, answer]
 		})
 	}
 
-	onPress = () => {
-		this.setState({ loggedIn: true })
+	currentQuestion = () => {
+		return questions[this.currentQuestionId()]
 	}
 
-	onTextChange = updatedUser => {
-		const user = { ...this.state.activeUser }
-
-		if (this.state.currentQuestion == 0) {
-			user.food = updatedUser
-		} else if (this.state.currentQuestion == 1) {
-			user.color = updatedUser
-		} else {
-			user.desc = updatedUser
-		}
-
-		this.setState({ activeUser: user, text: updatedUser })
-
-		console.log(user)
-	}
-
-	onSubmit = () => {
-		const currentQuestionIndex = this.state.currentQuestion
-		if (currentQuestionIndex === questions.length - 1) {
-			this.setState({ complete: true })
-		}
-		this.setState({
-			currentQuestion:
-				currentQuestionIndex <= questions.length ? currentQuestionIndex + 1 : 0,
-			text: ''
-		})
+	currentQuestionId = () => {
+		return this.state.answers.length - 1
 	}
 
 	returnHome = () => {
-		this.setState({ loggedIn: false, complete: false, currentQuestion: 0 })
+		this.setState({ answers: [] })
 	}
 
-	selectRandom = array => {
-		return array[Math.floor(Math.random() * array.length)]
+	getUser = () => {
+		return this.state.answers[0]
 	}
 
-	render() {
-		if (this.state.complete) {
-			const { food, color, desc } = this.state.activeUser
-			const animal = this.selectRandom(animals)
-			return (
-				<View style={styles.container}>
-					<Result
-						food={food}
-						color={color}
-						desc={desc}
-						animal={animal}
-						onPress={this.returnHome}
-					/>
-				</View>
-			)
-		} else if (this.state.loggedIn) {
-			let question = questions[this.state.currentQuestion]
-			return (
-				<View style={styles.container}>
-					<Question
-						user={this.state.activeUser.name}
-						users={this.state.users}
-						question={question}
-						text={this.state.text}
-						onTextChange={this.onTextChange}
-						onSubmit={this.onSubmit}
-					/>
-				</View>
-			)
-		} else {
-			return (
-				<View style={styles.container}>
-					<Login
-						title="Who are you?"
-						users={this.state.users}
-						activeUser={this.state.activeUser}
-						select={this.onSelect}
-						onPress={this.onPress}
-					/>
-				</View>
-			)
+	renderQuestion = () => {
+		return (
+			<View style={styles.container}>
+				<Question
+					user={this.getUser()}
+					question={this.currentQuestion()}
+					onSubmit={this.onSubmit}
+					key={this.currentQuestionId()}
+				/>
+			</View>
+		)
+	}
+
+	isComplete = () => {
+		return this.state.answers.length === questions.length + 1
+	}
+
+	isAtStart = () => {
+		return this.state.answers.length === 0
+	}
+
+	getResults = () => {
+		return {
+			food: this.state.answers[1],
+			color: this.state.answers[2],
+			description: this.state.answers[3]
 		}
+	}
+
+	renderBody = () => {
+		if (this.isComplete()) {
+			return <Result {...this.getResults()} onSubmit={this.returnHome} />
+		} else if (this.isAtStart()) {
+			return <Login users={this.state.users} onSubmit={this.onSubmit} />
+		} else {
+			return this.renderQuestion()
+		}
+	}
+
+	render = () => {
+		return (
+			<Provider store={store}>
+				<KeyboardAwareScrollView contentContainerStyle={styles.container}>
+					<View>{this.renderBody()}</View>
+				</KeyboardAwareScrollView>
+			</Provider>
+		)
 	}
 }
 
@@ -144,7 +110,7 @@ const styles = StyleSheet.create({
 		flex: 1,
 		justifyContent: 'center',
 		alignItems: 'center',
-		backgroundColor: '#F5FCFF',
+		backgroundColor: '#FFF',
 		padding: 20
 	}
 })
